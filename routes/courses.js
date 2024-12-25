@@ -1,6 +1,8 @@
 const express = require('express');
 const stdDbDebugger = require('debug')('app::db');
 const {Course, validateCourse}= require('../models/course');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 const createCourses = require('../create-courses');
 const router = express.Router();
 
@@ -27,7 +29,8 @@ router.get(`/:id`, async (req, res)=>{
     res.json(course);
 });
 
-router.post(`/`, (req, res)=>{
+router.post(`/`, auth, (req, res)=>{
+
     const course = new Course({
         name: req.body.name,
         price: req.body.price,
@@ -70,7 +73,7 @@ router.put(`/:id`, async(req, res)=>{
     res.send(course);
 });
 
-router.delete(`/:id`, async(req, res)=>{
+router.delete(`/:id`, [auth, admin], async(req, res)=>{
     const {id} = req.params;
     const deletedCourse = await Course.findByIdAndDelete(id);
     
